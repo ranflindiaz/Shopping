@@ -12,14 +12,12 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+            
+            <partial name="_Country" />
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-outline-primary" />
-                <a asp-action="Index" class="btn btn-outline-success">Back to List</a>
+                <a asp-action="Index" class="btn btn-outline-success">Go back</a>
             </div>
         </form>
     </div>
