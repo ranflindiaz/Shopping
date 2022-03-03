@@ -13,7 +13,9 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
-            <partial name="_Country" />
+            <div class="mb-3">
+                <partial name="_Country" />
+            </div>
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-outline-primary" />
