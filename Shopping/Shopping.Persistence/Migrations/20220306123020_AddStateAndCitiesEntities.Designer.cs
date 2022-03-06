@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shopping.Persistence;
 
@@ -11,9 +12,10 @@ using Shopping.Persistence;
 namespace Shopping.Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220306123020_AddStateAndCitiesEntities")]
+    partial class AddStateAndCitiesEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,6 +53,9 @@ namespace Shopping.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -60,6 +65,8 @@ namespace Shopping.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
 
                     b.HasIndex("StateId");
 
@@ -120,8 +127,12 @@ namespace Shopping.Persistence.Migrations
 
             modelBuilder.Entity("Shopping.Domain.Entities.City", b =>
                 {
-                    b.HasOne("Shopping.Domain.Entities.State", "State")
+                    b.HasOne("Shopping.Domain.Entities.Country", null)
                         .WithMany("Cities")
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("Shopping.Domain.Entities.State", "State")
+                        .WithMany()
                         .HasForeignKey("StateId");
 
                     b.Navigation("State");
@@ -138,12 +149,9 @@ namespace Shopping.Persistence.Migrations
 
             modelBuilder.Entity("Shopping.Domain.Entities.Country", b =>
                 {
-                    b.Navigation("States");
-                });
-
-            modelBuilder.Entity("Shopping.Domain.Entities.State", b =>
-                {
                     b.Navigation("Cities");
+
+                    b.Navigation("States");
                 });
 #pragma warning restore 612, 618
         }

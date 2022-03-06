@@ -2,20 +2,15 @@
 
 namespace Shopping.Domain.Entities
 {
-    public class State
+    public class City
     {
         public int Id { get; set; }
 
-        [Display(Name = "State")]
+        [Display(Name = "City")]
         [MaxLength(50, ErrorMessage = "The field {0} have to have {1} characters.")]
         [Required(ErrorMessage = "The field {0} is mandatory.")]
         public string Name { get; set; }
 
-        public Country Country { get; set; }
-
-        public ICollection<City> Cities { get; set; }
-
-        [Display(Name = "Cities")]
-        public int CitiesNumber => Cities == null ? 0 : Cities.Count;
+        public State State { get; set; }
     }
 }
