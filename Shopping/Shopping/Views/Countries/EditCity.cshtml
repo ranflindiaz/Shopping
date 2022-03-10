@@ -1,4 +1,4 @@
-﻿@model StateViewModel
+﻿@model CityViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,20 +6,20 @@
 
 <h1>Edit</h1>
 
-<h4>State</h4>
+<h4>City</h4>
 <hr />
 <div class="row">
     <div class="col-md-10">
-        <form asp-action="EditState">
+        <form asp-action="Editcity">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CountryId" />
+            <input type="hidden" asp-for="StateId" />
 
-            <partial name="_AddState" />
+            <partial name="_City" />
 
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-outline-primary" />
-                <a asp-action="DetailState" asp-route-id="@Model.Id" class="btn btn-outline-success">Go back</a>
+                <a asp-action="DetailState" asp-route-id="@Model.StateId" class="btn btn-outline-success">Go back</a>
             </div>
         </form>
     </div>
