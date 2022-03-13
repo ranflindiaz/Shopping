@@ -8,7 +8,7 @@ namespace Shopping.Domain.Entities
 
         [Display(Name = "Country")]
         [MaxLength(50, ErrorMessage = "The field {0} have to have {1} characters.")]
-        [Required(ErrorMessage = "The field {0} is mandatory.")]
+        [Required(ErrorMessage = "The field {0} is required.")]
         public string Name { get; set; }
 
         public ICollection<State> States { get; set; }
