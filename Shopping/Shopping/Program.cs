@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Shopping.Domain.Entities;
+using Shopping.Infrastructure.Repositories;
 using Shopping.Persistence;
 using Shopping.Persistence.Data;
+using Shopping.Persistence.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +15,19 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection22322700"));
 });
 
+//TODO: make strongest password
+builder.Services.AddIdentity<User, IdentityRole>(cfg =>
+{
+    cfg.User.RequireUniqueEmail = true;
+    cfg.Password.RequireDigit = false;
+    cfg.Password.RequireLowercase = false;
+    cfg.Password.RequiredUniqueChars = 0;
+    cfg.Password.RequireUppercase = false;
+    cfg.Password.RequireNonAlphanumeric = false;
+}).AddEntityFrameworkStores<DataContext>();
+
 builder.Services.AddTransient<SeedDb>();
+builder.Services.AddScoped<IUserHelper, UserHelper>();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 var app = builder.Build();
@@ -39,9 +55,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

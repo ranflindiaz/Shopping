@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shopping.Persistence\Shopping.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

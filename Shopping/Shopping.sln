@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping", "Shopping\Shopping.csproj", "{E44E1F34-A284-49B9-BB0A-78AAC891FE2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Domain", "Shopping.Domain\Shopping.Domain.csproj", "{CC990AD5-BA04-4E79-B75D-D0B62F12DBF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Domain", "Shopping.Domain\Shopping.Domain.csproj", "{CC990AD5-BA04-4E79-B75D-D0B62F12DBF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Persistence", "Shopping.Persistence\Shopping.Persistence.csproj", "{465F3042-EBF7-445B-A9D2-2ADF25E89F6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Persistence", "Shopping.Persistence\Shopping.Persistence.csproj", "{465F3042-EBF7-445B-A9D2-2ADF25E89F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Infraestructure", "Shopping.Infraestructure\Shopping.Infraestructure.csproj", "{05A20C85-6560-4350-91CA-2BCA0A4D22DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Infrastructure", "Shopping.Infraestructure\Shopping.Infrastructure.csproj", "{05A20C85-6560-4350-91CA-2BCA0A4D22DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

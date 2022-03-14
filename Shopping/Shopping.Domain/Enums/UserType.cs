@@ -1,4 +1,4 @@
-﻿namespace Shopping.Infraestructure
+﻿namespace Shopping.Domain.Enums
 {
     public enum UserType
     {
