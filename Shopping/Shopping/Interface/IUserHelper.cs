@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Shopping.Domain.Entities;
+using Shopping.Entities;
+using Shopping.Models;
 
-namespace Shopping.Persistence.Interface
+namespace Shopping.Interface
 {
     public interface IUserHelper
     {

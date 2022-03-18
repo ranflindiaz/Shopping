@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Shopping.Domain.Entities;
-using Shopping.Infrastructure.Repositories;
-using Shopping.Persistence;
-using Shopping.Persistence.Data;
-using Shopping.Persistence.Interface;
+using Shopping.Entities;
+using Shopping.Interface;
+using Shopping.Data;
+using Shopping.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +25,17 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
     cfg.Password.RequireNonAlphanumeric = false;
 }).AddEntityFrameworkStores<DataContext>();
 
+builder.Services.ConfigureApplicationCookie(opt =>
+{
+    opt.LoginPath = "/Accounts/NotAuthorized";
+    opt.AccessDeniedPath = "/Accounts/NotAuthorized";
+});
+
+
+
 builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
+builder.Services.AddScoped<ICombosHelper, CombosHelper>();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 var app = builder.Build();
@@ -53,6 +61,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/error/{0}");//Codigo de error para el page notfound
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

@@ -25,13 +25,37 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Countries" asp-action="Index">Countries</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
-                        </li>
-                    </ul>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Countries" asp-action="Index">Países</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Productos</a>
+                            </li>
+                        }
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Accounts" asp-action="ChangeUser">@User.Identity.Name</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Logout">Cerrar Sesión</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Login">Iniciar Sesión</a>
+                                </li>
+                            }
+                        </ul>
+
                 </div>
             </div>
         </nav>

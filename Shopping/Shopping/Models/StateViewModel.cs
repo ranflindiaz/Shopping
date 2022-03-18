@@ -1,4 +1,4 @@
-﻿using Shopping.Domain.Entities;
+﻿using Shopping.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace Shopping.Models

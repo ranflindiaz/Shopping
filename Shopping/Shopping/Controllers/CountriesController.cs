@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shopping.Domain.Entities;
 using Shopping.Models;
-using Shopping.Persistence;
+using Shopping.Entities;
+using Shopping.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shopping.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CountriesController : Controller
     {
         private readonly DataContext _context;
@@ -162,7 +164,7 @@ namespace Shopping.Controllers
 
                     _context.Add(state);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new {Id = model.CountryId });
+                    return RedirectToAction(nameof(Details), new { Id = model.CountryId });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
@@ -342,7 +344,7 @@ namespace Shopping.Controllers
                     var state = new State()
                     {
                         Id = model.Id,
-                        Name= model.Name,
+                        Name = model.Name,
                     };
 
                     _context.Update(state);
@@ -500,7 +502,7 @@ namespace Shopping.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             _context.States.Remove(state);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { Id = state.Country.Id});
+            return RedirectToAction(nameof(Details), new { Id = state.Country.Id });
         }
 
         // GET: City/Delete/1

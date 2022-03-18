@@ -1,8 +1,8 @@
-﻿using Shopping.Domain.Entities;
-using Shopping.Domain.Enums;
-using Shopping.Persistence.Interface;
+﻿using Shopping.Entities;
+using Shopping.Enums;
+using Shopping.Interface;
 
-namespace Shopping.Persistence.Data
+namespace Shopping.Data
 {
     public class SeedDb
     {
@@ -25,7 +25,7 @@ namespace Shopping.Persistence.Data
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Ranflin", "Diaz", "ranflin@yopmail.com", "333 211 4035",
                 "Calle Churchil", UserType.Admin);
-            await CheckUserAsync("2020", "Ranfy", "Baez", "ranybaez@yopmail.com", "323 210 4055",
+            await CheckUserAsync("2020", "Ranfy", "Baez", "ranfybaez@yopmail.com", "323 210 4055",
                 "Calle Churchil", UserType.User);
         }
 

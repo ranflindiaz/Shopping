@@ -1,16 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shopping.Models
+namespace Shopping.Entities
 {
-    public class CityViewModel
+    public class City
     {
         public int Id { get; set; }
 
         [Display(Name = "City")]
         [MaxLength(50, ErrorMessage = "The field {0} have to have {1} characters.")]
-        [Required(ErrorMessage = "The field {0} is mandatory.")]
+        [Required(ErrorMessage = "The field {0} is required.")]
         public string Name { get; set; }
 
-        public int StateId { get; set; }
+        public State State { get; set; }
+
+        public ICollection<User> Users { get; set;}
     }
 }

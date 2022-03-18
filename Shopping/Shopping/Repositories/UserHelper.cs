@@ -1,25 +1,28 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Shopping.Infrastructure.Models;
-using Shopping.Domain.Entities;
-using Shopping.Persistence;
-using Shopping.Persistence.Interface;
+using Shopping.Data;
+using Shopping.Entities;
+using Shopping.Interface;
+using Shopping.Models;
 
-namespace Shopping.Infrastructure.Repositories
+namespace Shopping.Repositories
 {
     public class UserHelper : IUserHelper
     {
         private readonly DataContext _context;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public UserHelper(DataContext context, 
+        public UserHelper(DataContext context,
             UserManager<User> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            SignInManager<User> signInManager)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
 
@@ -45,7 +48,7 @@ namespace Shopping.Infrastructure.Repositories
             bool roleExist = await _roleManager.RoleExistsAsync(roleName);
             if (!roleExist)
             {
-                await _roleManager.CreateAsync(new IdentityRole 
+                await _roleManager.CreateAsync(new IdentityRole
                 {
                     Name = roleName
                 });
@@ -57,14 +60,15 @@ namespace Shopping.Infrastructure.Repositories
             return await _userManager.IsInRoleAsync(user, roleName);
         }
 
-        public Task<SignInResult> LoginAsync(LoginViewModel model)
+        public async Task<SignInResult> LoginAsync(LoginViewModel model)
         {
-            throw new NotImplementedException();
+            return await _signInManager.PasswordSignInAsync(
+                model.Username, model.Password, model.RememberMe, false);
         }
 
-        public Task LogoutAsync()
+        public async Task LogoutAsync()
         {
-            throw new NotImplementedException();
+            await _signInManager.SignOutAsync();
         }
     }
 }
