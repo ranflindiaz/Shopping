@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Shopping.Data;
+using Shopping.Entities;
 using Shopping.Enums;
 using Shopping.Interface;
 using Shopping.Models;
@@ -61,10 +62,10 @@ namespace Shopping.Controllers
                 }
 
                 model.ImageId = imageId;
-                var user = await _userHelper.AddUserAsync(model);
+                User user = await _userHelper.AddUserAsync(model);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Este correo ya está siendo usado.");
+                    ModelState.AddModelError(string.Empty, "This email is already in use.");
                     return View(model);
                 }
 
