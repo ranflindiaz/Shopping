@@ -30,7 +30,23 @@ namespace Shopping.Repositories
         {
             return await _context.Users
                 .Include(u => u.City)
+                .ThenInclude(c => c.State)
+                .ThenInclude(s => s.Country)
                 .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            return await _context.Users
+                .Include(u => u.City)
+                .ThenInclude(c => c.State)
+                .ThenInclude(s => s.Country)
+                .FirstOrDefaultAsync(u => u.Id == userId.ToString());
+        }
+
+        public async Task<bool> IsUserInRoleAsync(User user, string roleName)
+        {
+            return await _userManager.IsInRoleAsync(user, roleName);
         }
 
         public async Task<User> AddUserAsync(AddUserViewModel model)
@@ -59,7 +75,6 @@ namespace Shopping.Repositories
             User newUser = await GetUserAsync(model.Username);
             await AddUserToRoleAsync(newUser, user.UserType.ToString());
             return newUser;
-
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -84,11 +99,6 @@ namespace Shopping.Repositories
             }
         }
 
-        public async Task<bool> IsUserInRoleAsync(User user, string roleName)
-        {
-            return await _userManager.IsInRoleAsync(user, roleName);
-        }
-
         public async Task<SignInResult> LoginAsync(LoginViewModel model)
         {
             return await _signInManager.PasswordSignInAsync(
@@ -98,6 +108,16 @@ namespace Shopping.Repositories
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+        {
+            return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _userManager.UpdateAsync(user);
         }
     }
 }
