@@ -45,7 +45,7 @@ namespace Shopping.Repositories
         {
             Guid name = Guid.NewGuid();
             CloudBlobContainer container = _blobClient.GetContainerReference(containerName);
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{container}");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{name}");
             await blockBlob.UploadFromStreamAsync(stream);
             return name;
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Shopping.Entities
 {
@@ -11,6 +12,7 @@ namespace Shopping.Entities
         [Required(ErrorMessage = "The field {0} is required.")]
         public string Name { get; set; }
 
+        [JsonIgnore]
         public Country Country { get; set; }
 
         public ICollection<City> Cities { get; set; }
