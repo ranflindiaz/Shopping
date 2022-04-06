@@ -38,11 +38,11 @@ namespace Shopping.Models
         //TODO: Pending to put the correct paths
         [Display(Name = "Picture")]
         public string ImageFullPath => ImageId == Guid.Empty
-            ? $"https://localhost:7057/images/noimage.png"
+            ? $"https://localhost:7245/img/noimage.png"
             : $"https://shopping1.blob.core.windows.net/users/{ImageId}";
 
         [Display(Name = "Image")]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
 
         [Display(Name = "Country")]
         [Range(1, int.MaxValue, ErrorMessage = "Select a Country.")]

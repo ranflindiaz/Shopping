@@ -102,7 +102,7 @@ namespace Shopping.Repositories
         public async Task<SignInResult> LoginAsync(LoginViewModel model)
         {
             return await _signInManager.PasswordSignInAsync(
-                model.Username, model.Password, model.RememberMe, false);
+                model.Username, model.Password, model.RememberMe, true);
         }
 
         public async Task LogoutAsync()

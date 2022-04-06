@@ -23,6 +23,9 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
     cfg.Password.RequiredUniqueChars = 0;
     cfg.Password.RequireUppercase = false;
     cfg.Password.RequireNonAlphanumeric = false;
+    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    cfg.Lockout.MaxFailedAccessAttempts = 3;
+    cfg.Lockout.AllowedForNewUsers = true;
 }).AddEntityFrameworkStores<DataContext>();
 
 builder.Services.ConfigureApplicationCookie(opt =>
