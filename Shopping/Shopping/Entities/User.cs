@@ -38,7 +38,7 @@ namespace Shopping.Entities
             ? $"https://localhost:7245/img/noimage.png"
             : $"https://shopping1.blob.core.windows.net/users/{ImageId}";
 
-        [Display(Name = "User Type")]
+        [Display(Name = "Type")]
         public UserType UserType { get; set; }
 
         [Display(Name = "User")]

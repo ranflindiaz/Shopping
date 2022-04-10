@@ -52,7 +52,7 @@ namespace Shopping.Repositories
         public async Task<User> AddUserAsync(AddUserViewModel model)
         {
 
-            User user = new User
+            User user = new()
             {
                 Address = model.Address,
                 Document = model.Document,
@@ -118,6 +118,16 @@ namespace Shopping.Repositories
         public async Task<IdentityResult> UpdateUserAsync(User user)
         {
             return await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
         }
     }
 }

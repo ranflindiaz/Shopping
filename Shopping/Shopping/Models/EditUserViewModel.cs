@@ -27,9 +27,10 @@ namespace Shopping.Models
         [Required(ErrorMessage = "Field {0} is required.")]
         public string Address { get; set; }
 
-        [Display(Name = "Phone")]
+        
         [MaxLength(20, ErrorMessage = "Field {0} have to have {1} charactérs.")]
         [Required(ErrorMessage = "Field {0} is required.")]
+        [Display(Name = "Phone")]
         public string PhoneNumber { get; set; }
 
         [Display(Name = "Picture")]

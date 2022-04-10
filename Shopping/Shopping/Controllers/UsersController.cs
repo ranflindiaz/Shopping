@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shopping.Common;
 using Shopping.Data;
 using Shopping.Entities;
 using Shopping.Enums;
@@ -16,14 +17,16 @@ namespace Shopping.Controllers
         private readonly DataContext _context;
         private readonly ICombosHelper _combosHelper;
         private readonly IBlobHelper _blobHelper;
+        private readonly IMailHelper _mailHelper;
 
         public UsersController(IUserHelper userHelper, DataContext contetx,
-            ICombosHelper combosHelper, IBlobHelper blobHelper)
+            ICombosHelper combosHelper, IBlobHelper blobHelper, IMailHelper mailHelper)
         {
             _userHelper = userHelper;
             _context = contetx;
             _combosHelper = combosHelper;
             _blobHelper = blobHelper;
+            _mailHelper = mailHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -73,7 +76,27 @@ namespace Shopping.Controllers
                     return View(model);
                 }
 
-                    return RedirectToAction("Index", "Users");
+                string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                string tokenLink = Url.Action("ConfirmEmail", "Accounts", new
+                {
+                    userid = user.Id,
+                    token = myToken
+                }, protocol: HttpContext.Request.Scheme);
+
+                Response response = _mailHelper.SendMail(
+                    $"{model.FirstName} {model.LastName}",
+                    model.Username,
+                    "Shopping - Email Confirmation",
+                    $"<h1>Shopping - Email Confirmation</h1>" +
+                        $"Ton enable your Administrator please click this link:, " +
+                        $"<hr/><br/><p><a href = \"{tokenLink}\">Confirm Email</a></p>");
+                if (response.IsSuccess)
+                {
+                    ViewBag.Message = "Instructions to enable the Administrator have been sent to the mail.";
+                    return View(model);
+                }
+
+                ModelState.AddModelError(string.Empty, response.Message);
             }
 
             model.Countries = await _combosHelper.GetComboCountriesAsync();

@@ -24,7 +24,7 @@ namespace Shopping.Models
         [StringLength(20, MinimumLength = 6, ErrorMessage = "The field {0} should be between {2} and {1} charácters.")]
         public string PasswordConfirm { get; set; }
 
-        [Display(Name = "User Type")]
+        [Display(Name = "Type")]
         public UserType UserType
         {
             get; set;

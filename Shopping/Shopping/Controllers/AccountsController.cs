@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shopping.Common;
 using Shopping.Data;
 using Shopping.Entities;
 using Shopping.Enums;
@@ -13,14 +14,16 @@ namespace Shopping.Controllers
     public class AccountsController : Controller
     {
         private readonly IUserHelper _userHelper;
+        private readonly IMailHelper _mailHelper;
         private readonly DataContext _context;
         private readonly ICombosHelper _combosHelper;
         private readonly IBlobHelper _blobHelper;
 
-        public AccountsController(IUserHelper userHelper,
+        public AccountsController(IUserHelper userHelper, IMailHelper mailHelper,
             DataContext context, ICombosHelper combosHelper, IBlobHelper blobHelper)
         {
             _userHelper = userHelper;
+            _mailHelper = mailHelper;
             _context = context;
             _combosHelper = combosHelper;
             _blobHelper = blobHelper;
@@ -73,20 +76,27 @@ namespace Shopping.Controllers
                     model.Cities = await _combosHelper.GetComboCitiesAsync(model.StateId);
                     return View(model);
                 }
-
-                LoginViewModel loginViewModel = new()
+                string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                string tokenLink = Url.Action("ConfirmEmail", "Accounts", new
                 {
-                    Password = model.Password,
-                    RememberMe = false,
-                    Username = model.Username
-                };
+                    userid = user.Id,
+                    token = myToken
+                }, protocol: HttpContext.Request.Scheme);
 
-                var result = await _userHelper.LoginAsync(loginViewModel);
-
-                if (result.Succeeded)
+                Response response = _mailHelper.SendMail(
+                    $"{model.FirstName} {model.LastName}",
+                    model.Username,
+                    "Shopping - Email Confirmation",
+                    $"<h1>Shopping - Email Confirmation</h1>" +
+                        $"Ton enable your user please click this link:, " +
+                        $"<hr/><br/><p><a href = \"{tokenLink}\">Confirm Email</a></p>");
+                if (response.IsSuccess)
                 {
-                    return RedirectToAction("Index", "Home");
+                    ViewBag.Message = "Instructions to enable the user have been sent to the mail.";
+                    return View(model);
                 }
+
+                ModelState.AddModelError(string.Empty, response.Message);
             }
 
             model.Countries = await _combosHelper.GetComboCountriesAsync();
@@ -95,6 +105,27 @@ namespace Shopping.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return NotFound();
+            }
+
+            User user = await _userHelper.GetUserAsync(new Guid(userId));
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            IdentityResult result = await _userHelper.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return NotFound();
+            }
+
+            return View();
+        }
 
         [HttpPost]
         public async Task<ActionResult> Login(LoginViewModel login)
@@ -110,6 +141,10 @@ namespace Shopping.Controllers
                 if (result.IsLockedOut)
                 {
                     ModelState.AddModelError(string.Empty, "You have exceeded the maximum number of attempts, your account is locked, try again in 5 minutes.");
+                }
+                else if (result.IsNotAllowed) 
+                { 
+                    ModelState.AddModelError(string.Empty, "The user has not been enabled, you must follow the instructions of the email we sent you to enable your user.");
                 }
                 else
                 {
