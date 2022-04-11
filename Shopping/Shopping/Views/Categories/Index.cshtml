@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css" />
 
 <p>
-    <a asp-action="Create" class="btn btn-outline-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-outline-primary"><i class="fa-solid fa-circle-plus"></i> Create New</a>
 </p>
 
 <div class="row">
@@ -33,9 +33,9 @@
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning">Edit</a> |
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info">Details</a> |
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">Delete</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info"><i class="fa-solid fa-circle-info"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
                                 </td>
                             </tr>
                         }
@@ -50,19 +50,19 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#MyTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/English.json"
-                },
-                "aLengthMenu": [
-                    [25, 50, 100, 200, -1],
-                    [25, 50, 100, 200, "All"]
-                ]
-            });
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#MyTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/English.json"
+            },
+            "aLengthMenu": [
+                [25, 50, 100, 200, -1],
+                [25, 50, 100, 200, "All"]
+            ]
         });
-    </script>
+    });
+</script>
 }

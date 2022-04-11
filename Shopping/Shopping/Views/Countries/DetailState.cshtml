@@ -14,9 +14,9 @@
 </div>
 
 <div>
-    <a asp-action="AddCity" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Add City</a> |
-    <a asp-action="EditState" asp-route-id="@Model?.Id" class="btn btn-outline-warning">State Edit</a> |
-    <a asp-action="Details" asp-route-id="@Model?.Country.Id" class="btn btn-outline-success">Go Back</a>
+    <a asp-action="AddCity" asp-route-id="@Model?.Id" class="btn btn-outline-primary"><i class="fa-solid fa-circle-plus"></i> Add City</a> |
+    <a asp-action="EditState" asp-route-id="@Model?.Id" class="btn btn-outline-warning"><i class="fa-solid fa-pen-to-square"></i> State Edit</a> |
+    <a asp-action="Details" asp-route-id="@Model?.Country.Id" class="btn btn-outline-success"><i class="fa-solid fa-circle-left"></i> Go Back</a>
 </div>
 
 <hr />
@@ -44,9 +44,9 @@
                                     @Html.DisplayFor(modelItem => item.Name)
                                 </td>
                                 <td>
-                                    <a asp-action="EditCity" asp-route-id="@item.Id" class="btn btn-outline-warning">Edit</a> |
-                                    <a asp-action="DetailCity" asp-route-id="@item.Id" class="btn btn-outline-info">Details</a> |
-                                    <a asp-action="DeleteCity" asp-route-id="@item.Id" class="btn btn-outline-danger">Delete</a>
+                                    <a asp-action="EditCity" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    <a asp-action="DetailCity" asp-route-id="@item.Id" class="btn btn-outline-info"><i class="fa-solid fa-circle-info"></i></a>
+                                    <a asp-action="DeleteCity" asp-route-id="@item.Id" class="btn btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
                                 </td>
                             </tr>
                         }
