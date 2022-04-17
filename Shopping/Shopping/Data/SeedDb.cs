@@ -1,4 +1,5 @@
-﻿using Shopping.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Shopping.Entities;
 using Shopping.Enums;
 using Shopping.Interface;
 
@@ -8,11 +9,13 @@ namespace Shopping.Data
     {
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
+        private readonly IBlobHelper _blobHelper;
 
-        public SeedDb(DataContext context, IUserHelper userHelper)
+        public SeedDb(DataContext context, IUserHelper userHelper, IBlobHelper blobHelper)
         {
             _context = context;
             _userHelper = userHelper;
+            _blobHelper = blobHelper;
         }
 
         public async Task SeedAsync()
@@ -24,10 +27,63 @@ namespace Shopping.Data
             await CheckCountriesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Ranflin", "Diaz", "ranflin@yopmail.com", "333 211 4035",
-                "Calle Churchil", UserType.Admin);
-            await CheckUserAsync("2020", "Ranfy", "Baez", "ranfybaez@yopmail.com", "323 210 4055",
-                "Calle Churchil", UserType.User);
+                "Calle South 3rd", "ranflin.jpg", UserType.Admin);
+            await CheckUserAsync("2020", "Brad", "Pitt", "brad@yopmail.com", "323 210 4055",
+                "Calle 5th Avenue", "bard.png", UserType.User);
+            await CheckUserAsync("3030", "Angelina", "Jolie", "angelina@yopmail.com", "488 213 4515",
+                "Calle Lexintong Avenue", "angelina.png", UserType.User);
+            await CheckUserAsync("4040", "Bob", "Marley", "bobmarley@yopmail.com", "718 289 3254",
+                "Calle Park Avenue", "bobmarley.png", UserType.User);
+            await CheckProductsAsync();
         }
+
+        private async Task CheckProductsAsync()
+        {
+            if (!_context.Products.Any())
+            {
+                await AddProductAsync("AirPods", 1300000M, 12F, new List<string>() { "Tecnology", "Apple" }, new List<string>() { "airpods.png", "airpods2.png" });
+                await AddProductAsync("Helmet Bike", 820000M, 12F, new List<string>() { "Sport" }, new List<string>() { "bikehelmet.png"});
+                await AddProductAsync("iPad", 2300000M, 6F, new List<string>() { "Tecnology", "Apple" }, new List<string>() { "ipad.png" });
+                await AddProductAsync("iPhone 13", 5200000M, 6F, new List<string>() { "Tecnology", "Apple" }, new List<string>() { "iphone13.png", "iphone13-2.png" });
+                await AddProductAsync("New Balance 530", 180000M, 12F, new List<string>() { "Shoes", "Sport" }, new List<string>() { "newbalance530.png" });
+                await AddProductAsync("Nike Air", 233000M, 12F, new List<string>() { "Shoes", "Sport" }, new List<string>() { "nike_air.png" });
+                await AddProductAsync("Weight Protein", 252000M, 12F, new List<string>() { "Nutritión" }, new List<string>() { "whey_protein.png" });
+                await AddProductAsync("Pets Moths", 25000M, 12F, new List<string>() { "Pets" }, new List<string>() { "arnes_mascota.png" });
+                await AddProductAsync("Pets Beds", 99000M, 12F, new List<string>() { "Pets" }, new List<string>() { "petbed.png" });
+                await AddProductAsync("Gamer Keyboard", 67000M, 12F, new List<string>() { "Gamer", "Tecnology" }, new List<string>() { "teclado_gamer.png" });
+                await AddProductAsync("Gamer Chair", 980000M, 12F, new List<string>() { "Gamer", "Tecnology" }, new List<string>() { "silla_gamer.png" });
+                await AddProductAsync("Mouse Gamer", 132000M, 12F, new List<string>() { "Gamer", "Tecnology" }, new List<string>() { "mousegamer.png" });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task AddProductAsync(string name, decimal price, float stock, List<string> categories, List<string> images)
+        {
+            Product prodcut = new()
+            {
+                Description = name,
+                Name = name,
+                Price = price,
+                Stock = stock,
+                ProductCategories = new List<ProductCategory>(),
+                ProductImages = new List<ProductImage>()
+            };
+
+            foreach (string? category in categories)
+            {
+                prodcut.ProductCategories.Add(new ProductCategory { Category = await _context.Categories.FirstOrDefaultAsync(c => c.Name == category) });
+            }
+
+
+            foreach (string? image in images)
+            {
+                Guid imageId = await _blobHelper.UploadBlobAsync($"{Environment.CurrentDirectory}\\wwwroot\\img\\products\\{image}", "products");
+                prodcut.ProductImages.Add(new ProductImage { ImageId = imageId });
+            }
+
+            _context.Products.Add(prodcut);
+        }
+
 
         public async Task<User> CheckUserAsync(
             string document,
@@ -36,11 +92,15 @@ namespace Shopping.Data
             string email,
             string phone,
             string address,
+            string image,
             UserType userType)
         {
             User user = await _userHelper.GetUserAsync(email);
             if (user == null)
             {
+                Guid imageId = await _blobHelper.UploadBlobAsync($"{Environment.CurrentDirectory}" +
+                    $"\\wwwroot\\img\\users\\{image}", "users");
+
                 user = new User
                 {
                     FirstName = firstName,
@@ -52,6 +112,7 @@ namespace Shopping.Data
                     Document = document,
                     City = _context.Cities.FirstOrDefault(),
                     UserType = userType,
+                    ImageId = imageId
                 };
 
                 await _userHelper.AddUserAsync(user, "123456");
@@ -135,24 +196,111 @@ namespace Shopping.Data
                         }
                     }
                 });
-            }
 
-            await _context.SaveChangesAsync();
-        }
+                _context.Countries.Add(new Country
+                {
+                    Name = "Ecuador",
+                    States = new List<State>()
+                    {
+                        new State()
+                        {
+                            Name = "Pichincha",
+                            Cities = new List<City>() {
+                                new City() { Name = "Quito" },
+                            }
+                        },
+                        new State()
+                        {
+                            Name = "Esmeraldas",
+                            Cities = new List<City>() {
+                                new City() { Name = "Esmeraldas" },
+                            }
+                        }
+                    }
+                });
 
-        private async Task CheckCategoriesAsync()
-        {
-            if (!_context.Categories.Any())
+                _context.Countries.Add(new Country
+                {
+                    Name = "Colombia",
+                    States = new List<State>()
             {
-                _context.Categories.Add(new Category { Name = "Tecnology" });
-                _context.Categories.Add(new Category { Name = "Clothes" });
-                _context.Categories.Add(new Category { Name = "Shoes" });
-                _context.Categories.Add(new Category { Name = "Nutrition" });
-                _context.Categories.Add(new Category { Name = "Sports" });
-                _context.Categories.Add(new Category { Name = "Apple" });
-                _context.Categories.Add(new Category { Name = "Pets" });
+                new State()
+                {
+                    Name = "Antioquia",
+                    Cities = new List<City>() {
+                        new City() { Name = "Medellín" },
+                        new City() { Name = "Itagüí" },
+                        new City() { Name = "Envigado" },
+                        new City() { Name = "Bello" },
+                        new City() { Name = "Sabaneta" },
+                        new City() { Name = "La Ceja" },
+                        new City() { Name = "La Union" },
+                        new City() { Name = "La Estrella" },
+                        new City() { Name = "Copacabana" },
+                    }
+                },
+                new State()
+                {
+                    Name = "Bogotá",
+                    Cities = new List<City>() {
+                        new City() { Name = "Usaquen" },
+                        new City() { Name = "Champinero" },
+                        new City() { Name = "Santa fe" },
+                        new City() { Name = "Usme" },
+                        new City() { Name = "Bosa" },
+                    }
+                },
+                new State()
+                {
+                    Name = "Valle",
+                    Cities = new List<City>() {
+                        new City() { Name = "Calí" },
+                        new City() { Name = "Jumbo" },
+                        new City() { Name = "Jamundí" },
+                        new City() { Name = "Chipichape" },
+                        new City() { Name = "Buenaventura" },
+                        new City() { Name = "Cartago" },
+                        new City() { Name = "Buga" },
+                        new City() { Name = "Palmira" },
+                    }
+                },
+                new State()
+                {
+                    Name = "Santander",
+                    Cities = new List<City>() {
+                        new City() { Name = "Bucaramanga" },
+                        new City() { Name = "Málaga" },
+                        new City() { Name = "Barrancabermeja" },
+                        new City() { Name = "Rionegro" },
+                        new City() { Name = "Barichara" },
+                        new City() { Name = "Zapatoca" },
+                    }
+                },
+            }
+                });
+
+
                 await _context.SaveChangesAsync();
             }
         }
-    }
+
+        private async Task CheckCategoriesAsync()
+            {
+                if (!_context.Categories.Any())
+                {
+                    _context.Categories.Add(new Category { Name = "Tecnology" });
+                    _context.Categories.Add(new Category { Name = "Clothe" });
+                    _context.Categories.Add(new Category { Name = "Gamer" });
+                    _context.Categories.Add(new Category { Name = "Beauty" });
+                    _context.Categories.Add(new Category { Name = "Nutritión" });
+                    _context.Categories.Add(new Category { Name = "Shoes" });
+                    _context.Categories.Add(new Category { Name = "Sport" });
+                    _context.Categories.Add(new Category { Name = "Pets" });
+                    _context.Categories.Add(new Category { Name = "Apple" });
+
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+    } 
 }

@@ -36,9 +36,14 @@ namespace Shopping.Repositories
 
         public async Task DeleteBlobAsync(Guid id, string containerName)
         {
-            CloudBlobContainer container = _blobClient.GetContainerReference(containerName);
-            CloudBlockBlob blogBlock = container.GetBlockBlobReference($"{id}");
-            await blogBlock.DeleteAsync();
+            try
+            {
+                CloudBlobContainer container = _blobClient.GetContainerReference(containerName);
+                CloudBlockBlob blogBlock = container.GetBlockBlobReference($"{id}");
+                await blogBlock.DeleteAsync();
+            }
+            catch { }
+            
         }
 
         private async Task<Guid> UploadBlobAsync(Stream stream, string containerName)
