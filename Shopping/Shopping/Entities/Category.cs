@@ -7,8 +7,10 @@ namespace Shopping.Entities
         public int Id { get; set; }
 
         [Display(Name = "Category")]
-        [MaxLength(50, ErrorMessage = "The field {0} have to have {1} characters.")]
+        [MaxLength(50, ErrorMessage = "The field {0} have to be {1} characters.")]
         [Required(ErrorMessage = "The field {0} is required.")]
         public string Name { get; set; }
+
+        public ICollection<ProductCategory> ProductCategories { get; set; }
     }
 }
