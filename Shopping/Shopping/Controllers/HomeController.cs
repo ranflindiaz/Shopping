@@ -51,6 +51,7 @@ namespace Shopping.Controllers
                     i = 0;
                 }
                 i++;
+
             }
 
             HomeViewModel model = new HomeViewModel { Products = productsHome };
