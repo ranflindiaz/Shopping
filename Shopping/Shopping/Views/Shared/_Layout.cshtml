@@ -45,6 +45,12 @@
                         <ul class="nav navbar-nav navbar-right">
                             @if (User.Identity.IsAuthenticated)
                             {
+                                @if(@Model.Quantity > 0)
+                                {
+                                    <li class="nav-item">
+                                        <a asp-action="ShowCart" class="nav-link text-white"><i class="fa-solid fa-cart-shopping"></i> (@Model.Quantity)</a>
+                                    </li>
+                                }
                                 <li class="nav-item">
                                     <a class="nav-link text-white" asp-controller="Accounts" asp-action="ChangeUser">@User.Identity.Name</a>
                                 </li>

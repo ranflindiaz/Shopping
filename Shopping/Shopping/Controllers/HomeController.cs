@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Shopping.Data;
 using Shopping.Entities;
+using Shopping.Interface;
 using Shopping.Models;
 using System.Diagnostics;
 
@@ -10,10 +11,12 @@ namespace Shopping.Controllers
     public class HomeController : Controller
     {
         private readonly DataContext _context;
+        private readonly IUserHelper _userHelper;
 
-        public HomeController(DataContext context)
+        public HomeController(DataContext context, IUserHelper userHelper)
         {
             _context = context;
+            _userHelper = userHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -50,8 +53,54 @@ namespace Shopping.Controllers
                 i++;
             }
 
-            return View(productsHome);
+            HomeViewModel model = new HomeViewModel { Products = productsHome };
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+            if (user != null)
+            {
+                model.Quantity = await _context.TemporalSales
+                    .Where(tx => tx.User.Id == user.Id)
+                    .SumAsync(ts => ts.Quantity);
+            }
+
+            return View(model);
         }
+
+        public async Task<IActionResult> Add(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Accounts");
+            }
+
+            Product product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            TemporalSale temporalSale = new()
+            {
+                Product = product,
+                Quantity = 1,
+                User = user
+            };
+
+            _context.TemporalSales.Add(temporalSale);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
 
         public IActionResult Privacy()
         {

@@ -24,6 +24,8 @@ namespace Shopping.Data
 
         public DbSet<State> States { get; set; }
 
+        public DbSet<TemporalSale> TemporalSales { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
