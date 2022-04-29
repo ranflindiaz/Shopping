@@ -1,0 +1,7 @@
+﻿@model HomeViewModel
+
+@if (@Model.Quantity > 0)
+{   <div class="d-flex justify-content-end">
+        <a asp-action="ShowCart" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> (@Model.Quantity)</a>
+    </div>
+}
