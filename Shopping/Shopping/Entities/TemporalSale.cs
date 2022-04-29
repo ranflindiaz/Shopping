@@ -16,7 +16,9 @@ namespace Shopping.Entities
 
         [DataType(DataType.MultilineText)]
         [Display(Name = "Comments")]
-        public string? Remarks { get; set; }
+        public string Remarks { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:C2}")]
+        public decimal Value => Product == null ? 0 : (decimal)Quantity * Product.Price;
     }
 }
