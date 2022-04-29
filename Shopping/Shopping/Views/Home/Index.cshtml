@@ -26,11 +26,11 @@
         {
             <div class="col">
                 <div class="card h-100">
+                    <h5 class="card-title text-navy m-1 text-center"> @item.Name</h5>
                     <div class="text-center zoom">
                         <img src="@item.ImageFullPath" style="height:150px; max-width:200px;" class="text-center" alt=@item.Name />
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title text-navy"> @item.Name</h5>
                         <p class="card-text smfnt">@item.Description</p>
                         <h5 class="text-muted">@Html.DisplayFor(modelItem => item.Price)</h5>
                     </div>
