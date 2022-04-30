@@ -17,17 +17,18 @@ namespace Shopping.Entities
         [Display(Name = "Comments")]
         public string Remarks { get; set; }
 
+        [Display(Name = "Status")]
         public OrderStatus OrderStatus { get; set; }
 
-        public ICollection<OrderDetail> SaleDetails { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:N0}")]
-        public int Lines => SaleDetails == null ? 0 : SaleDetails.Count;
+        public int Lines => OrderDetails == null ? 0 : OrderDetails.Count;
 
         [DisplayFormat(DataFormatString = "{0:N2}")]
-        public float Quantity => SaleDetails == null ? 0 : SaleDetails.Sum(sd => sd.Quantity);
+        public float Quantity => OrderDetails == null ? 0 : OrderDetails.Sum(sd => sd.Quantity);
 
         [DisplayFormat(DataFormatString = "{0:C2}")]
-        public decimal Value => SaleDetails == null ? 0 : SaleDetails.Sum(sd => sd.Value);
+        public decimal Value => OrderDetails == null ? 0 : OrderDetails.Sum(sd => sd.Value);
     }
 }

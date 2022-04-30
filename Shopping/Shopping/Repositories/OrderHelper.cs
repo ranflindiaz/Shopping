@@ -29,13 +29,13 @@ namespace Shopping.Repositories
                 Date = DateTime.UtcNow,
                 User = model.User,
                 Remarks = model.Remarks,
-                SaleDetails = new List<OrderDetail>(),
+                OrderDetails = new List<OrderDetail>(),
                 OrderStatus = OrderStatus.New
             };
 
             foreach (TemporalSale item in model.TemporalSales)
             {
-                order.SaleDetails.Add(new OrderDetail
+                order.OrderDetails.Add(new OrderDetail
                 {
                     Product = item.Product,
                     Quantity = item.Quantity,

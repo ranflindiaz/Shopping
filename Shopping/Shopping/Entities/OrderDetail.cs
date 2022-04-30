@@ -10,7 +10,7 @@ namespace Shopping.Entities
 
         [DataType(DataType.MultilineText)]
         [Display(Name = "Comments")]
-        public string? Remarks { get; set; }
+        public string Remarks { get; set; }
 
         public Product Product { get; set; }
 
