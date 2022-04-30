@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shopping.Common;
 using Shopping.Data;
 using Shopping.Entities;
 using Shopping.Interface;
@@ -13,11 +14,13 @@ namespace Shopping.Controllers
     {
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
+        private readonly IOrderHelper _orderHelper;
 
-        public HomeController(DataContext context, IUserHelper userHelper)
+        public HomeController(DataContext context, IUserHelper userHelper, IOrderHelper orderHelper)
         {
             _context = context;
             _userHelper = userHelper;
+            _orderHelper = orderHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -25,6 +28,7 @@ namespace Shopping.Controllers
             List<Product> products = await _context.Products
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductCategories)
+                .Where(p => p.Stock > 0)
                 .OrderBy(p => p.Description)
                 .ToListAsync();
 
@@ -195,6 +199,34 @@ namespace Shopping.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ShowCart(ShowCartViewModel model)
+        {
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            model.User = user;
+            model.TemporalSales = await _context.TemporalSales
+                .Include(ts => ts.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Where(ts => ts.User.Id == user.Id)
+                .ToListAsync();
+
+            Response response = await _orderHelper.ProcessOrderAsync(model);
+            if (response.IsSuccess)
+            {
+                return RedirectToAction(nameof(OrderSuccess));
+            }
+
+            ModelState.AddModelError(string.Empty, response.Message);
+            return View(model);
+        }
+
+
         public async Task<IActionResult> DecreaseQuantity(int? id)
         {
             if (id == null)
@@ -309,5 +341,12 @@ namespace Shopping.Controllers
 
             return View(model);
         }
+
+        [Authorize]
+        public IActionResult OrderSuccess()
+        {
+            return View();
+        }
+
     }
 }
