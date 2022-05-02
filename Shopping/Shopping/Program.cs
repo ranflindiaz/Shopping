@@ -4,6 +4,7 @@ using Shopping.Entities;
 using Shopping.Interface;
 using Shopping.Data;
 using Shopping.Repositories;
+using Vereyon.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,9 +39,8 @@ builder.Services.ConfigureApplicationCookie(opt =>
     opt.AccessDeniedPath = "/Accounts/NotAuthorized";
 });
 
-
-
 builder.Services.AddTransient<SeedDb>();
+builder.Services.AddFlashMessage();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
 builder.Services.AddScoped<ICombosHelper, CombosHelper>();
 builder.Services.AddScoped<IBlobHelper, BlobHelper>();

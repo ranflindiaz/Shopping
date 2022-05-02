@@ -3,7 +3,7 @@
     public enum OrderStatus
     {
         New,
-        FullFilled,
+        Fullfilled,
         Sent,
         Confirmed,
         Cancelled
