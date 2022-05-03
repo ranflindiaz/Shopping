@@ -10,7 +10,6 @@ namespace Shopping.Models
         public string Username { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Contraseña")]
         [Required(ErrorMessage = "The field {0} is required.")]
         [MinLength(6, ErrorMessage = "The field {0} have to be at least {1} charácters.")]
         public string Password { get; set; }

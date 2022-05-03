@@ -7,6 +7,7 @@ using Shopping.Entities;
 using Shopping.Interface;
 using Shopping.Models;
 using System.Diagnostics;
+using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
@@ -15,12 +16,15 @@ namespace Shopping.Controllers
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
         private readonly IOrderHelper _orderHelper;
+        private readonly IFlashMessage _flashMessage;
 
-        public HomeController(DataContext context, IUserHelper userHelper, IOrderHelper orderHelper)
+        public HomeController(DataContext context, IUserHelper userHelper, 
+            IOrderHelper orderHelper, IFlashMessage flashMessage)
         {
             _context = context;
             _userHelper = userHelper;
             _orderHelper = orderHelper;
+            _flashMessage = flashMessage;
         }
 
         public async Task<IActionResult> Index()
@@ -184,7 +188,7 @@ namespace Shopping.Controllers
                 return NotFound();
             }
 
-            List<TemporalSale>? temporalSales = await _context.TemporalSales
+            List<TemporalSale> temporalSales = await _context.TemporalSales
                 .Include(ts => ts.Product)
                 .ThenInclude(p => p.ProductImages)
                 .Where(ts => ts.User.Id == user.Id)
@@ -222,7 +226,7 @@ namespace Shopping.Controllers
                 return RedirectToAction(nameof(OrderSuccess));
             }
 
-            ModelState.AddModelError(string.Empty, response.Message);
+            _flashMessage.Danger(response.Message);
             return View(model);
         }
 
@@ -332,7 +336,7 @@ namespace Shopping.Controllers
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                     return View(model);
                 }
 

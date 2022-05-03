@@ -7,6 +7,7 @@ using Shopping.Entities;
 using Shopping.Enums;
 using Shopping.Interface;
 using Shopping.Models;
+using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
@@ -15,15 +16,17 @@ namespace Shopping.Controllers
     {
         private readonly IUserHelper _userHelper;
         private readonly DataContext _context;
+        private readonly IFlashMessage _flashMessage;
         private readonly ICombosHelper _combosHelper;
         private readonly IBlobHelper _blobHelper;
         private readonly IMailHelper _mailHelper;
 
-        public UsersController(IUserHelper userHelper, DataContext contetx,
+        public UsersController(IUserHelper userHelper, DataContext contetx, IFlashMessage flashMessage,
             ICombosHelper combosHelper, IBlobHelper blobHelper, IMailHelper mailHelper)
         {
             _userHelper = userHelper;
             _context = contetx;
+            _flashMessage = flashMessage;
             _combosHelper = combosHelper;
             _blobHelper = blobHelper;
             _mailHelper = mailHelper;
@@ -69,7 +72,7 @@ namespace Shopping.Controllers
                 User user = await _userHelper.AddUserAsync(model);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "This email is already in use.");
+                    _flashMessage.Danger("This email is already in use.");
                     model.Countries = await _combosHelper.GetComboCountriesAsync();
                     model.States = await _combosHelper.GetComboStatesAsync(model.CountryId);
                     model.Cities = await _combosHelper.GetComboCitiesAsync(model.StateId);
@@ -92,11 +95,11 @@ namespace Shopping.Controllers
                         $"<hr/><br/><p><a href = \"{tokenLink}\">Confirm Email</a></p>");
                 if (response.IsSuccess)
                 {
-                    ViewBag.Message = "Instructions to enable the Administrator have been sent to the mail.";
+                    _flashMessage.Info("Instructions to enable the Administrator have been sent to the mail.");
                     return View(model);
                 }
 
-                ModelState.AddModelError(string.Empty, response.Message);
+                _flashMessage.Danger(response.Message);
             }
 
             model.Countries = await _combosHelper.GetComboCountriesAsync();

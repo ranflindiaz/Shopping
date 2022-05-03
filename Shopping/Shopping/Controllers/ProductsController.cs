@@ -5,6 +5,7 @@ using Shopping.Data;
 using Shopping.Entities;
 using Shopping.Interface;
 using Shopping.Models;
+using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
@@ -14,12 +15,15 @@ namespace Shopping.Controllers
         private readonly DataContext _context;
         private readonly ICombosHelper _combosHelper;
         private readonly IBlobHelper _blobHelper;
+        private readonly IFlashMessage _flashMessage;
 
-        public ProductsController(DataContext context, ICombosHelper combosHelper, IBlobHelper blobHelper)
+        public ProductsController(DataContext context, ICombosHelper combosHelper, 
+            IBlobHelper blobHelper, IFlashMessage flashMessage)
         {
             _context = context;
             _combosHelper = combosHelper;
             _blobHelper = blobHelper;
+            _flashMessage = flashMessage;
         }
 
         public async Task<IActionResult> Index()
@@ -81,22 +85,23 @@ namespace Shopping.Controllers
                 {
                     _context.Add(product);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"Item {product.Name} created.");
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a Product with the same name.");
+                        _flashMessage.Danger("There is a Product with the same name.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
 
@@ -147,22 +152,23 @@ namespace Shopping.Controllers
                 product.Stock = model.Stock;
                 _context.Update(product);
                 await _context.SaveChangesAsync();
+                _flashMessage.Info($"Item {product.Name} edited.");
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                 {
-                    ModelState.AddModelError(string.Empty, "There is a Product with the same name.");
+                    _flashMessage.Danger("There is a Product with the same name.");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    _flashMessage.Danger(dbUpdateException.InnerException.Message);
                 }
             }
             catch (Exception exception)
             {
-                ModelState.AddModelError(string.Empty, exception.Message);
+                _flashMessage.Danger(exception.Message);
             }
 
             return View(model);
@@ -228,11 +234,11 @@ namespace Shopping.Controllers
                 {
                     _context.Add(productImage);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new { Id = product.Id });
+                    return RedirectToAction(nameof(Details), new { product.Id });
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
 
@@ -257,7 +263,7 @@ namespace Shopping.Controllers
             await _blobHelper.DeleteBlobAsync(productImage.ImageId, "products");
             _context.ProductImages.Remove(productImage);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { Id = productImage.Product.Id });
+            return RedirectToAction(nameof(Details), new { productImage.Product.Id });
         }
 
         public async Task<IActionResult> AddCategory(int? id)
@@ -312,11 +318,11 @@ namespace Shopping.Controllers
                 {
                     _context.Add(productCategory);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new { Id = product.Id });
+                    return RedirectToAction(nameof(Details), new { product.Id });
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
 
@@ -347,7 +353,8 @@ namespace Shopping.Controllers
 
             _context.ProductCategories.Remove(productCategory);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { Id = productCategory.Product.Id });
+            _flashMessage.Info($"Item {productCategory.Category.Name} deleted.");
+            return RedirectToAction(nameof(Details), new { productCategory.Product.Id });
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -386,6 +393,7 @@ namespace Shopping.Controllers
                 await _blobHelper.DeleteBlobAsync(productImage.ImageId, "products");
             }
 
+            _flashMessage.Info($"Item {product.Name} deleted.");
             return RedirectToAction(nameof(Index));
         }
 

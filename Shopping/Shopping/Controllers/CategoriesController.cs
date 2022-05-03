@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Shopping.Entities;
 using Shopping.Data;
 using Microsoft.AspNetCore.Authorization;
+using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
@@ -10,10 +11,12 @@ namespace Shopping.Controllers
     public class CategoriesController : Controller
     {
         private readonly DataContext _context;
+        private readonly IFlashMessage _flashMessage;
 
-        public CategoriesController(DataContext context)
+        public CategoriesController(DataContext context, IFlashMessage flashMessage)
         {
             _context = context;
+            _flashMessage = flashMessage;
         }
 
         public async Task<IActionResult> Index()
@@ -61,16 +64,16 @@ namespace Shopping.Controllers
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a category with the same name.");
+                        _flashMessage.Danger("There is a category with the same name.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(category);
@@ -115,16 +118,16 @@ namespace Shopping.Controllers
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a category with the same name.");
+                        _flashMessage.Danger("There is a category with the same name.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(category);
@@ -156,6 +159,7 @@ namespace Shopping.Controllers
             var category = await _context.Categories.FindAsync(id);
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
+            _flashMessage.Info("Record Deleted.");
             return RedirectToAction(nameof(Index));
         }
     }

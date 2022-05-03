@@ -7,6 +7,7 @@ using Shopping.Entities;
 using Shopping.Enums;
 using Shopping.Interface;
 using Shopping.Models;
+using Vereyon.Web;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Shopping.Controllers
@@ -18,15 +19,18 @@ namespace Shopping.Controllers
         private readonly DataContext _context;
         private readonly ICombosHelper _combosHelper;
         private readonly IBlobHelper _blobHelper;
+        private readonly IFlashMessage _flashMessage;
 
         public AccountsController(IUserHelper userHelper, IMailHelper mailHelper,
-            DataContext context, ICombosHelper combosHelper, IBlobHelper blobHelper)
+            DataContext context, ICombosHelper combosHelper, IBlobHelper blobHelper,
+            IFlashMessage flashMessage)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
             _context = context;
             _combosHelper = combosHelper;
             _blobHelper = blobHelper;
+            _flashMessage = flashMessage;
         }
 
         public ActionResult Login()
@@ -70,7 +74,7 @@ namespace Shopping.Controllers
                 User user = await _userHelper.AddUserAsync(model);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "This email is already in use.");
+                    _flashMessage.Danger("This email is already in use.");
                     model.Countries = await _combosHelper.GetComboCountriesAsync();
                     model.States = await _combosHelper.GetComboStatesAsync(model.CountryId);
                     model.Cities = await _combosHelper.GetComboCitiesAsync(model.StateId);
@@ -92,8 +96,8 @@ namespace Shopping.Controllers
                         $"<hr/><br/><p><a href = \"{tokenLink}\">Confirm Email</a></p>");
                 if (response.IsSuccess)
                 {
-                    ViewBag.Message = "Instructions to enable the user have been sent to the mail.";
-                    return View(model);
+                    _flashMessage.Info("Instructions to enable your user have been sent to your email.");
+                    return RedirectToAction(nameof(Login));
                 }
 
                 ModelState.AddModelError(string.Empty, response.Message);
@@ -140,15 +144,15 @@ namespace Shopping.Controllers
 
                 if (result.IsLockedOut)
                 {
-                    ModelState.AddModelError(string.Empty, "You have exceeded the maximum number of attempts, your account is locked, try again in 5 minutes.");
+                    _flashMessage.Danger("You have exceeded the maximum number of attempts, your account is locked, try again in 5 minutes.");
                 }
-                else if (result.IsNotAllowed) 
-                { 
-                    ModelState.AddModelError(string.Empty, "The user has not been enabled, you must follow the instructions of the email we sent you to enable your user.");
+                else if (result.IsNotAllowed)
+                {
+                    _flashMessage.Danger("The user has not been enabled, you must follow the instructions of the email we sent you to enable your user.");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Incorrect email or password.");
+                    _flashMessage.Danger("Incorrect email or password.");
                 }
             }
 
@@ -267,17 +271,17 @@ namespace Shopping.Controllers
             {
                 if (model.OldPassword == model.NewPassword)
                 {
-                    ModelState.AddModelError(string.Empty, "Type a different password than your current password");
+                    _flashMessage.Danger("Type a different password than your current password");
                     return View(model);
                 }
 
-                User? user = await _userHelper.GetUserAsync(User.Identity.Name);
+                User user = await _userHelper.GetUserAsync(User.Identity.Name);
                 if (user != null)
                 {
-                    IdentityResult? result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    IdentityResult result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("ChangeUser");
+                        return RedirectToAction(nameof(ChangeUser));
                     }
                     else
                     {
@@ -286,7 +290,7 @@ namespace Shopping.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "User no found.");
+                    _flashMessage.Danger("User no found.");
                 }
             }
 
@@ -306,7 +310,7 @@ namespace Shopping.Controllers
                 User user = await _userHelper.GetUserAsync(model.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "This email is not registered.");
+                    _flashMessage.Danger(string.Empty, "This email is not registered.");
                     return View(model);
                 }
 
@@ -322,8 +326,8 @@ namespace Shopping.Controllers
                     $"<h1>Shopping - Password recovery</h1>" +
                     $"To recover your password please click in the next link:" +
                     $"<p><a href = \"{link}\">Reset Password</a></p>");
-                ViewBag.Message = $"Instructions to recover your password have been sent to {model.Email}.";
-                return View();
+                _flashMessage.Info($"Instructions to recover your password have been sent to {model.Email}.");
+                return RedirectToAction(nameof(Login));
             }
 
             return View(model);
@@ -343,15 +347,15 @@ namespace Shopping.Controllers
                 IdentityResult result = await _userHelper.ResetPasswordAsync(user, model.Token, model.Password);
                 if (result.Succeeded)
                 {
-                    ViewBag.Message = "Password changed successfully.";
-                    return View();
+                    _flashMessage.Info("Password changed successfully.");
+                    return RedirectToAction(nameof(Login));
                 }
 
-                ViewBag.Message = "Something was wrong changing your password";
+                _flashMessage.Danger("Something was wrong changing your password");
                 return View(model);
             }
 
-            ViewBag.Message = "User not found.";
+            _flashMessage.Danger("User not found.");
             return View(model);
         }
 

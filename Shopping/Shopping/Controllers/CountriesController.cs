@@ -4,6 +4,7 @@ using Shopping.Models;
 using Shopping.Entities;
 using Shopping.Data;
 using Microsoft.AspNetCore.Authorization;
+using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
@@ -11,10 +12,12 @@ namespace Shopping.Controllers
     public class CountriesController : Controller
     {
         private readonly DataContext _context;
+        private readonly IFlashMessage _flashMessage;
 
-        public CountriesController(DataContext context)
+        public CountriesController(DataContext context, IFlashMessage flashMessage)
         {
             _context = context;
+            _flashMessage = flashMessage;
         }
 
         // GET: Countries
@@ -101,22 +104,23 @@ namespace Shopping.Controllers
                 {
                     _context.Add(country);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"Country {country.Name} created.");
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a country with the same name.");
+                        _flashMessage.Danger("There is a country with the same name.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(country);
@@ -164,22 +168,23 @@ namespace Shopping.Controllers
 
                     _context.Add(state);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"State {state.Name} created");
                     return RedirectToAction(nameof(Details), new { Id = model.CountryId });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a State with the same name in this Country");
+                        _flashMessage.Danger("There is a State with the same name in this Country");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(model);
@@ -226,22 +231,23 @@ namespace Shopping.Controllers
 
                     _context.Add(city);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"City {city.Name} created");
                     return RedirectToAction(nameof(DetailState), new { Id = model.StateId });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a City with the same name in this State.");
+                        _flashMessage.Danger("There is a City with the same name in this State.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(model);
@@ -280,22 +286,23 @@ namespace Shopping.Controllers
                 {
                     _context.Update(country);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"Country {country.Name} edited.");
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a country with the same name.");
+                        _flashMessage.Danger("There is a country with the same name.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(country);
@@ -349,22 +356,23 @@ namespace Shopping.Controllers
 
                     _context.Update(state);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"State {state.Name} edited.");
                     return RedirectToAction(nameof(Details), new { Id = model.CountryId });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a State with the same name in this Country.");
+                        _flashMessage.Danger("There is a State with the same name in this Country.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(model);
@@ -418,22 +426,23 @@ namespace Shopping.Controllers
 
                     _context.Update(city);
                     await _context.SaveChangesAsync();
+                    _flashMessage.Info($"City {city.Name} edited.");
                     return RedirectToAction(nameof(DetailState), new { Id = model.StateId });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        ModelState.AddModelError(string.Empty, "There is a Cityu with the same name in this State.");
+                        _flashMessage.Danger("There is a Cityu with the same name in this State.");
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        _flashMessage.Danger(dbUpdateException.InnerException.Message);
                     }
                 }
                 catch (Exception exception)
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    _flashMessage.Danger(exception.Message);
                 }
             }
             return View(model);
@@ -468,6 +477,7 @@ namespace Shopping.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             _context.Countries.Remove(country);
             await _context.SaveChangesAsync();
+            _flashMessage.Info($"Country {country.Name} deleted.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -502,6 +512,7 @@ namespace Shopping.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             _context.States.Remove(state);
             await _context.SaveChangesAsync();
+            _flashMessage.Info($"State {state.Name} deleted.");
             return RedirectToAction(nameof(Details), new { Id = state.Country.Id });
         }
 
@@ -530,6 +541,7 @@ namespace Shopping.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             _context.Cities.Remove(city);
             await _context.SaveChangesAsync();
+            _flashMessage.Info($"City {city.Name} deleted.");
             return RedirectToAction(nameof(DetailState), new { city.State.Id });
         }
     }
