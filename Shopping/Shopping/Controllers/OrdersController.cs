@@ -9,7 +9,7 @@ using Vereyon.Web;
 
 namespace Shopping.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     public class OrdersController : Controller
     {
         private readonly DataContext _context;
@@ -23,6 +23,7 @@ namespace Shopping.Controllers
             _orderHelper = orderHelper;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Orders
@@ -32,6 +33,7 @@ namespace Shopping.Controllers
                 .ToListAsync());
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -53,6 +55,7 @@ namespace Shopping.Controllers
             return View(order);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dispatch(int? id)
         {
             if (id == null)
@@ -81,6 +84,7 @@ namespace Shopping.Controllers
             return RedirectToAction(nameof(Details), new { order.Id });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Send(int? id)
         {
             if (id == null)
@@ -109,6 +113,7 @@ namespace Shopping.Controllers
             return RedirectToAction(nameof(Details), new { order.Id });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Confirm(int? id)
         {
             if (id == null)
@@ -137,6 +142,7 @@ namespace Shopping.Controllers
             return RedirectToAction(nameof(Details), new { order.Id });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Cancel(int? id)
         {
             if (id == null)
@@ -161,6 +167,39 @@ namespace Shopping.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { order.Id });
+        }
+
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> MyOrders()
+        {
+            return View(await _context.Orders
+                .Include(s => s.User)
+                .Include(s => s.OrderDetails)
+                .ThenInclude(sd => sd.Product)
+                .Where(s => s.User.UserName == User.Identity.Name)
+                .ToListAsync());
+        }
+
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> MyDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Order sale = await _context.Orders
+                .Include(s => s.User)
+                .Include(s => s.OrderDetails)
+                .ThenInclude(sd => sd.Product)
+                .ThenInclude(p => p.ProductImages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (sale == null)
+            {
+                return NotFound();
+            }
+
+            return View(sale);
         }
 
     }
