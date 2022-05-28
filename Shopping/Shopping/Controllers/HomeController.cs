@@ -32,8 +32,8 @@ namespace Shopping.Controllers
         public async Task<IActionResult> Index(string sortOrder,string currentFilter, string searchString, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "NameDesc" : "";
-            ViewData["PriceSortParm"] = sortOrder == "Price" ? "PriceDesc" : "Price";
+            ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "NameDesc" : "";
+            ViewData["PriceSortParam"] = sortOrder == "Price" ? "PriceDesc" : "Price";
 
             if (searchString != null)
             {
