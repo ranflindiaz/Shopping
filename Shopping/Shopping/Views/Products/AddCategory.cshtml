@@ -1,18 +1,15 @@
 ﻿@model AddCategoryProductViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Product";
+    Layout = null;
 }
 
 <flash dismissable="true" />
 
-<h1>Create</h1>
-
-<h4>Product / Category</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="AddCategory" enctype="multipart/form-data">
+<div class="container smfont">
+    <form asp-action="AddCategory" enctype="multipart/form-data" autocomplete="off" asp-route-id="@Model.ProductId" onsubmit="return jQueryAjaxPost(this);">
+        <div class="box-body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
             <input type="hidden" asp-for="Categories" />
@@ -21,15 +18,14 @@
                 <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control"></select>
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
-            <div class="form-group mt-2">
-                <input type="submit" value="Crear" class="btn btn-outline-primary" />
-                <a asp-action="Details" asp-route-id="@Model.ProductId" class="btn btn-outline-success"><i class="fa-solid fa-circle-left"></i> Go Back</a>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"><i class="fa fa-ban"></i> Cancel</button>
+            <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Save</button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
