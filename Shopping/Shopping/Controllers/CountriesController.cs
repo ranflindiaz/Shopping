@@ -22,7 +22,6 @@ namespace Shopping.Controllers
             _flashMessage = flashMessage;
         }
 
-        // GET: Countries
         public async Task<IActionResult> Index()
         {
             return View(await _context.Countries
@@ -31,14 +30,9 @@ namespace Shopping.Controllers
                 .ToListAsync());
         }
 
-        // GET: Countries/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [NoDirectAccess]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var country = await _context.Countries
                 .Include(x => x.States)
                 .ThenInclude(s => s.Cities)
@@ -51,15 +45,10 @@ namespace Shopping.Controllers
             return View(country);
         }
 
-        // GET: State/Details/3
-        public async Task<IActionResult> DetailState(int? id)
+        [NoDirectAccess]
+        public async Task<IActionResult> DetailState(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            State state = await _context.States
+            var state = await _context.States
                 .Include(s => s.Country)
                 .Include(s => s.Cities)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -71,29 +60,10 @@ namespace Shopping.Controllers
             return View(state);
         }
 
-        // GET: City/Details/2
-        public async Task<IActionResult> DetailCity(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var city = await _context.Cities
-                .Include(c => c.State)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            if (city == null)
-            {
-                return NotFound();
-            }
-
-            return View(city);
-        }
-
         [NoDirectAccess]
         public async Task<IActionResult> AddState(int id)
         {
-            Country country = await _context.Countries.FindAsync(id);
+            var country = await _context.Countries.FindAsync(id);
 
             if (country == null)
             {
@@ -108,7 +78,6 @@ namespace Shopping.Controllers
             return View(model);
         }
 
-        // POST: State/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddState(StateViewModel model)
@@ -126,7 +95,7 @@ namespace Shopping.Controllers
 
                     _context.Add(state);
                     await _context.SaveChangesAsync();
-                    Country country = await _context.Countries
+                    var country = await _context.Countries
                         .Include(c => c.States)
                         .ThenInclude(s => s.Cities)
                         .FirstOrDefaultAsync(c => c.Id == model.CountryId);
@@ -153,14 +122,9 @@ namespace Shopping.Controllers
 
         }
 
-        // GET: State/Create
-        public async Task<IActionResult> AddCity(int? id)
+        [NoDirectAccess]
+        public async Task<IActionResult> AddCity(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var state = await _context.States.FindAsync(id);
 
             if (state == null)
@@ -176,7 +140,6 @@ namespace Shopping.Controllers
             return View(model);
         }
 
-        // POST: State/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCity(CityViewModel model)
@@ -193,8 +156,11 @@ namespace Shopping.Controllers
 
                     _context.Add(city);
                     await _context.SaveChangesAsync();
+                    var state = await _context.States
+                        .Include(s => s.Cities)
+                        .FirstOrDefaultAsync(c => c.Id == model.StateId);
                     _flashMessage.Info($"City {city.Name} created");
-                    return RedirectToAction(nameof(DetailState), new { Id = model.StateId });
+                    return Json(new {isValid = true, html = ModalHelper.RenderRazorViewToString(this, "_ViewAllCities", state)});
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
@@ -212,14 +178,15 @@ namespace Shopping.Controllers
                     _flashMessage.Danger(exception.Message);
                 }
             }
-            return View(model);
+            return Json(new { isValid = false, html = ModalHelper.RenderRazorViewToString(this, "AddCity", model) });
+
 
         }
 
         [NoDirectAccess]
         public async Task<IActionResult> EditState(int id)
         {
-            State state = await _context.States
+            var state = await _context.States
                 .Include(s => s.Country)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (state == null)
@@ -251,13 +218,13 @@ namespace Shopping.Controllers
             {
                 try
                 {
-                    State state = new()
+                    var state = new State()
                     {
                         Id = model.Id,
                         Name = model.Name,
                     };
                     _context.Update(state);
-                    Country country = await _context.Countries
+                    var country = await _context.Countries
                         .Include(c => c.States)
                         .ThenInclude(s => s.Cities)
                         .FirstOrDefaultAsync(c => c.Id == model.CountryId);
@@ -284,14 +251,9 @@ namespace Shopping.Controllers
             return Json(new { isValid = false, html = ModalHelper.RenderRazorViewToString(this, "EditState", model) });
         }
 
-        // GET: State/Edit/5
-        public async Task<IActionResult> EditCity(int? id)
+        [NoDirectAccess]
+        public async Task<IActionResult> EditCity(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var city = await _context.Cities
                 .Include(c => c.State)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -310,7 +272,6 @@ namespace Shopping.Controllers
             return View(model);
         }
 
-        // POST: State/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCity(int id, CityViewModel model)
@@ -332,14 +293,17 @@ namespace Shopping.Controllers
 
                     _context.Update(city);
                     await _context.SaveChangesAsync();
+                    var state = await _context.States
+                        .Include(s => s.Cities)
+                        .FirstOrDefaultAsync(s => s.Id == model.StateId);
                     _flashMessage.Info($"City {city.Name} edited.");
-                    return RedirectToAction(nameof(DetailState), new { Id = model.StateId });
+                    return Json(new { isValid = true, html = ModalHelper.RenderRazorViewToString(this, "_ViewAllCities", state) });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
                     if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        _flashMessage.Danger("There is a Cityu with the same name in this State.");
+                        _flashMessage.Danger("There is a City with the same name in this State.");
                     }
                     else
                     {
@@ -351,7 +315,7 @@ namespace Shopping.Controllers
                     _flashMessage.Danger(exception.Message);
                 }
             }
-            return View(model);
+            return Json(new { isValid = false, html = ModalHelper.RenderRazorViewToString(this, "EditCity", model) });
         }
 
         [NoDirectAccess]
@@ -421,7 +385,7 @@ namespace Shopping.Controllers
                         isValid = true,
                         html = ModalHelper.RenderRazorViewToString(
                             this,
-                            "_ViewAll",
+                            "_ViewAllCountries",
                             _context.Countries
                                 .Include(c => c.States)
                                 .ThenInclude(s => s.Cities)
@@ -473,33 +437,30 @@ namespace Shopping.Controllers
             return RedirectToAction(nameof(Details), new { id = state.Country.Id });
         }
 
-        // GET: City/Delete/1
-        public async Task<IActionResult> DeleteCity(int? id)
+        [NoDirectAccess]
+        public async Task<IActionResult> DeleteCity(int id)
         {
-            if (id == null)
+            City city = await _context.Cities
+                .Include(c => c.State)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (city == null)
             {
                 return NotFound();
             }
 
-            var city = await _context.Cities
-                .Include(c => c.State)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                _context.Cities.Remove(city);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                _flashMessage.Danger("Can not delete City because has related records.");
+            }
 
-            return View(city);
+            _flashMessage.Info("Record deleted.");
+            return RedirectToAction(nameof(DetailState), new { id = city.State.Id });
         }
 
-        // POST: City/Delete/1
-        [HttpPost, ActionName("DeleteCity")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCityConfirmed(int id)
-        {
-            var city = await _context.Cities
-                .Include(c => c.State)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            _context.Cities.Remove(city);
-            await _context.SaveChangesAsync();
-            _flashMessage.Info($"City {city.Name} deleted.");
-            return RedirectToAction(nameof(DetailState), new { city.State.Id });
-        }
     }
 }
